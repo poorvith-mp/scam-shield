@@ -27,9 +27,9 @@ export async function analyzeMessageApi({ message, language = 'en', source = 'we
 
     const data = await response.json().catch(() => null);
 
-    if (!response.ok) {
-      const errorMsg = data?.message || data?.error || 'Request failed';
-      const status = response.status;
+    if (!response.ok || !data) {
+      const errorMsg = data?.message || data?.error || 'Analysis service temporarily unavailable. Please try again.';
+      const status = response.status || 500;
       return {
         success: false,
         status,
