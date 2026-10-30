@@ -99,20 +99,60 @@ function detectInputLanguage(text) {
 }
 
 function evaluateEdgeRules(text) {
-  const isDefensive = DEFENSIVE_OTP_PATTERNS.some(p => p.test(text));
+  const lower = text.toLowerCase();
+  const isCallSignals = lower.includes('[call warning signals:');
+  const isDefensive = !isCallSignals && DEFENSIVE_OTP_PATTERNS.some(p => p.test(text));
+
   let score = 0;
   const redFlags = [];
   const tactics = new Set();
   const scamTypes = [];
   let hasCriticalFlag = false;
 
-  // 1. Credential theft (CRITICAL)
+  // Dedicated Call Warning Signals Evaluation
+  if (isCallSignals) {
+    if (/arrest|court summons|police case|digital arrest|ಬಂಧನ|गिरफ्तारी/i.test(text)) {
+      score += 65;
+      hasCriticalFlag = true;
+      redFlags.push("Caller threatened legal arrest, police detention, or court summons.");
+      tactics.add("authority");
+      tactics.add("loss_aversion");
+      scamTypes.push({ type: "authority_impersonation", weight: 70 });
+    }
+    if (/secret otp|upi pin|bank details|password|ರಹಸ್ಯ ಓಟಿಪಿ|गोपनीय ओटीपी/i.test(text)) {
+      score += 65;
+      hasCriticalFlag = true;
+      redFlags.push("Caller demanded confidential credentials, secret OTP, UPI PIN, or bank password.");
+      tactics.add("credential_phishing");
+      scamTypes.push({ type: "phishing", weight: 75 });
+    }
+    if (/money transfer|payment to clear|penalties|fees|ಹಣ ವರ್ಗಾವಣೆ|पैसे ट्रांसफर|दंड|ಜುಲ್ಮಾನೆ/i.test(text)) {
+      score += 60;
+      hasCriticalFlag = true;
+      redFlags.push("Caller demanded immediate money transfer or fees to clear alleged penalties.");
+      tactics.add("loss_aversion");
+      scamTypes.push({ type: "payment_scam", weight: 65 });
+    }
+    if (/cbi|police|customs|bank|trai|courier|ಕಸ್ಟಮ್ಸ್|ಸಿಬಿಐ|कस्टम्स|सीबीआई/i.test(text)) {
+      score += 55;
+      redFlags.push("Caller falsely claimed to represent law enforcement, bank, or government agencies.");
+      tactics.add("authority");
+      scamTypes.push({ type: "authority_impersonation", weight: 60 });
+    }
+    if (/act urgently|not to consult family|ತುರ್ತು|तुरंत|परिवार/i.test(text)) {
+      score += 45;
+      tactics.add("urgency");
+      redFlags.push("Caller imposed extreme urgency and warned against consulting family or advisors.");
+    }
+  }
+
+  // 1. Credential theft & OTP solicitation (CRITICAL)
   if (!isDefensive) {
     const otpDemands = [
-      /\b(?:share|send|tell|give)\s+(?:me\s+)?(?:your\s+)?(?:the\s+)?(?:otp|pin|password|cvv)\b/i,
-      /\b(?:otp|pin|password)\s+(?:bhejo|bataye|bhejiye|darj\s+kare|kodi|thilisi)\b/i,
-      /(?:ओटीपी|पिन|पासवर्ड)\s+(?:बताएं|भेजें|दर्ज\s+करें)/,
-      /(?:ಓಟಿಪಿ|ಪಿನ್|ಪಾಸ್ವರ್ಡ್)\s+(?:ನೀಡಿ|ದಾಖಲಿಸಿ|ತಿಳಿಸಿ)/
+      /\b(?:share|send|tell|give|asked|demanded|demands|demanding|requesting|request)\s+(?:me\s+)?(?:your\s+)?(?:the\s+)?(?:for\s+)?(?:secret\s+)?(?:otp|pin|password|cvv)\b/i,
+      /\b(?:otp|pin|password)\s+(?:bhejo|bataye|bhejiye|darj\s+kare|kodi|thilisi|maanga)\b/i,
+      /(?:ओटीपी|पिन|पासवर्ड)\s+(?:बताएं|भेजें|दर्ज\s+करें|मांगा)/,
+      /(?:ಓಟಿಪಿ|ಪಿನ್|ಪಾಸ್ವರ್ಡ್)\s+(?:ನೀಡಿ|ದಾಖಲಿಸಿ|ತಿಳಿಸಿ|ಕೇಳಿದರು)/
     ];
     if (otpDemands.some(p => p.test(text))) {
       score += 65;
@@ -126,6 +166,7 @@ function evaluateEdgeRules(text) {
   // 2. Digital Arrest / Law Enforcement (CRITICAL)
   const authorityPatterns = [
     /\b(?:cbi|police|customs|court|rbi|trai|narcotics)\b.*?\b(?:arrest|warrant|seized|illegal|jail|case\s+filed|drugs)\b/i,
+    /\b(?:claimed|claiming|pretending)\s+to\s+be\s+(?:cbi|police|customs|bank|trai|courier|inspector|officer|rbi)\b/i,
     /\bdigital\s+arrest\b/i,
     /\bparcel\s+(?:held|seized|intercepted)\s+by\s+customs\b/i,
     /\bpolice\s+(?:girftari|action|warrant)\b/i,
@@ -141,7 +182,19 @@ function evaluateEdgeRules(text) {
     scamTypes.push({ type: "authority_impersonation", weight: 65 });
   }
 
-  // 3. Bank / KYC / Electricity Threat
+  // 3. Demanded Money / Fine Under Coercion
+  const moneyDemandPatterns = [
+    /\b(?:demanded|demands|demanding|transfer)\s+(?:money|payment|cash|funds|penalties|fees)\b/i,
+    /\bpay\s+(?:fine|penalty|bail|clearance)\b/i
+  ];
+  if (moneyDemandPatterns.some(p => p.test(text))) {
+    score += 55;
+    redFlags.push("Demand for immediate fund transfer or penalty payment under pressure.");
+    tactics.add("loss_aversion");
+    scamTypes.push({ type: "payment_scam", weight: 55 });
+  }
+
+  // 4. Bank / KYC / Electricity Threat
   const threatPatterns = [
     /\b(?:account|pan|kyc|sim|card)\s+(?:will\s+be\s+)?(?:blocked|suspended|deactivated|frozen|terminated)\b/i,
     /\belectricity\s+(?:power\s+)?will\s+be\s+(?:disconnected|cutoff|cut\s+off)\s+(?:tonight|today)\b/i,
@@ -158,7 +211,7 @@ function evaluateEdgeRules(text) {
     scamTypes.push({ type: "bank_fraud", weight: 50 });
   }
 
-  // 4. QR Code / UPI Collect Trick ("Scan QR to receive money")
+  // 5. QR Code / UPI Collect Trick ("Scan QR to receive money")
   const upiTrickPatterns = [
     /\bscan\s+(?:this\s+)?qr\s+(?:code\s+)?to\s+(?:receive|accept|credit|get|claim)\b/i,
     /\bapprove\s+(?:upi\s+)?collect\s+request\s+to\s+receive\b/i,
@@ -175,7 +228,7 @@ function evaluateEdgeRules(text) {
     scamTypes.push({ type: "payment_scam", weight: 70 });
   }
 
-  // 5. Job Scam
+  // 6. Job Scam
   const jobPatterns = [
     /\b(?:part\s*time|work\s+from\s+home)\s+job\b.*?\b(?:daily|earn|salary)\s+(?:rs\.?|inr|\$)?\s*\d+/i,
     /\blike\s+youtube\s+videos\s+and\s+earn\b/i,
@@ -191,7 +244,7 @@ function evaluateEdgeRules(text) {
     scamTypes.push({ type: "job_scam", weight: 45 });
   }
 
-  // 6. Lottery / Prize
+  // 7. Lottery / Prize
   const lotteryPatterns = [
     /\bcongratulations.*?\b(?:won|selected|winner)\b.*?(?:lakh|crore|prize|lottery|reward|cash)\b/i,
     /\bkbc\s+lottery\b/i,

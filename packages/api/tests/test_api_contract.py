@@ -75,6 +75,15 @@ def test_upi_qr_reverse_scam():
     assert data["risk_score"] >= 50
     assert data["scam_type"] == "payment_scam"
 
+def test_call_mode_warning_signals_danger():
+    message = "[Call Warning Signals: Demanded money transfer or payment to clear penalties/fees; Asked for secret OTP, UPI PIN, bank details, or password; Pressured you to act urgently or warned you not to consult family; Claimed to be CBI, Police, Customs, Bank, TRAI, or Courier]"
+    response = client.post("/api/v1/analyze", json={"message": message, "language": "en"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["verdict"] == "danger"
+    assert data["risk_score"] >= 80
+    assert len(data["red_flags"]) >= 3
+
 def test_multilingual_hindi_response():
     message = "बधाई हो! आपने 50,000 रुपये का इनाम जीता है। अभी क्लेम करने के लिए तुरंत 500 रुपये फीस भरें।"
     response = client.post("/api/v1/analyze", json={"message": message, "language": "hi"})

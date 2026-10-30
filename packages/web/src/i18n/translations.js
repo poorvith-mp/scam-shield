@@ -23,12 +23,12 @@ export const translations = {
     call_notes_placeholder: "Optional notes: What did the caller say? What company or department did they claim to be?",
     payment_placeholder: "Paste or describe the payment request, UPI collect request, QR code message, or refund offer...",
     payment_helper: "Include requested amounts, UPI handles, or scanning instructions.",
-    samples_label: "Try a realistic sample:",
+    samples_label: "Try a realistic test sample:",
     samples: {
-      safe_otp: "Bank OTP Advisory",
-      digital_arrest: "Digital Arrest",
-      qr_scam: "QR Code Cashback",
-      job_scam: "Part-time Job"
+      safe_otp: "Bank OTP Advisory (Legitimate Safe Alert)",
+      digital_arrest: "Digital Arrest (Police Threat Scam)",
+      qr_scam: "QR Code Cashback (UPI Reversal Scam)",
+      job_scam: "Part-time Job (Telegram Fee Scam)"
     },
     char_count: "characters",
     clear_btn: "Clear",
@@ -89,12 +89,12 @@ export const translations = {
     call_notes_placeholder: "वैकल्पिक विवरण: कॉलर ने क्या कहा? उसने खुद को किस विभाग या कंपनी का बताया?",
     payment_placeholder: "भुगतान अनुरोध, यूपीआई कलेक्ट रिक्वेस्ट, क्यूआर कोड संदेश या रिफंड ऑफर यहाँ लिखें...",
     payment_helper: "मांगी गई राशि, यूपीआई आईडी या क्यूआर स्कैनिंग निर्देश शामिल करें।",
-    samples_label: "उदाहरण जांचें:",
+    samples_label: "परीक्षण हेतु उदाहरण:",
     samples: {
-      safe_otp: "बैंक ओटीपी सूचना",
-      digital_arrest: "डिजिटल अरेस्ट",
-      qr_scam: "क्यूआर कैशबैक धोखा",
-      job_scam: "पार्ट-टाइम जॉब"
+      safe_otp: "बैंक ओटीपी सूचना (सुरक्षित अलर्ट)",
+      digital_arrest: "डिजिटल अरेस्ट (पुलिस धमकी स्कैम)",
+      qr_scam: "क्यूआर कैशबैक (यूपीआई फ्रॉड)",
+      job_scam: "पार्ट-टाइम जॉब (टेलीग्राम स्कैम)"
     },
     char_count: "अक्षर",
     clear_btn: "साफ़ करें",
@@ -155,12 +155,12 @@ export const translations = {
     call_notes_placeholder: "ಹೆಚ್ಚುವರಿ ಮಾಹಿತಿ: ಕರೆ ಮಾಡಿದವರು ಏನು ಹೇಳಿದರು? ಯಾವ ಸಂಸ್ಥೆಯ ಹೆಸರನ್ನು ಹೇಳಿದರು?",
     payment_placeholder: "ಹಣದ ವಿನಂತಿ, ಯುಪಿಐ ಕಲೆಕ್ಟ್ ರಿಕ್ವೆಸ್ಟ್, ಕ್ಯೂಆರ್ ಕೋಡ್ ಅಥವಾ ರಿಫಂಡ್ ವಿವರ ನಮೂದಿಸಿ...",
     payment_helper: "ಹಣದ ಮೊತ್ತ, ಯುಪಿಐ ಐಡಿ ಅಥವಾ ಸ್ಕ್ಯಾನಿಂಗ್ ಸೂಚನೆಗಳನ್ನು ಸೇರಿಸಿ.",
-    samples_label: "ಮಾದರಿ ಪರೀಕ್ಷೆ:",
+    samples_label: "ಪರೀಕ್ಷಾ ಮಾದರಿಗಳು:",
     samples: {
-      safe_otp: "ಬ್ಯಾಂಕ್ ಓಟಿಪಿ ಎಚ್ಚರಿಕೆ",
-      digital_arrest: "ಡಿಜಿಟಲ್ ಬಂಧನ",
-      qr_scam: "ಕ್ಯೂಆರ್ ಕ್ಯಾಶ್‌ಬ್ಯಾಕ್ ವಂಚನೆ",
-      job_scam: "ಭಾಗಶಃ ಸಮಯದ ಕೆಲಸ"
+      safe_otp: "ಬ್ಯಾಂಕ್ ಓಟಿಪಿ ಎಚ್ಚರಿಕೆ (ಸುರಕ್ಷಿತ ಮಾದರಿ)",
+      digital_arrest: "ಡಿಜಿಟಲ್ ಬಂಧನ (ನಕಲಿ ಪೊಲೀಸ್ ವಂಚನೆ)",
+      qr_scam: "ಕ್ಯೂಆರ್ ಕ್ಯಾಶ್‌ಬ್ಯಾಕ್ (ಯುಪಿಐ ವಂಚನೆ)",
+      job_scam: "ಭಾಗಶಃ ಕೆಲಸ (ಟೆಲಿಗ್ರಾಮ್ ವಂಚನೆ)"
     },
     char_count: "ಅಕ್ಷರಗಳು",
     clear_btn: "ತೆರವುಗೊಳಿಸಿ",
